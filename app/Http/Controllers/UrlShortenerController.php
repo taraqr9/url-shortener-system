@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateUrlShortenerRequest;
 use App\Http\Requests\UrlShortenerRequest;
 use App\Models\UrlShortener;
 use Illuminate\Http\RedirectResponse;
@@ -30,17 +31,36 @@ class UrlShortenerController extends Controller
 
     }
 
-    public function redirectToOriginalUrl($shortUrl): RedirectResponse
+    public function edit(UrlShortener $url): View
     {
-        try {
-            $url = UrlShortener::where('short_url', $shortUrl)->firstOrFail();
+        return view('edit', compact('url'));
+    }
 
-            $url->increment('click_count');
+    public function update(UrlShortener $url, UpdateUrlShortenerRequest $request): RedirectResponse
+    {
+        if (! $url->update($request->validated())) {
+            return redirect()->back()->with('error', 'Url update failed!');
+        }
 
-            return redirect($url->original_url);
-        } catch (\Exception $exception) {
+        return redirect()->back()->with('success', 'Url updated successfully!');
+    }
+
+    public function delete(UrlShortener $url): RedirectResponse
+    {
+        if (! $url->delete()) {
+            return redirect()->back()->with('error', 'Url delete failed!');
+        }
+
+        return redirect()->back()->with('success', 'Url deleted successfully');
+    }
+
+    public function redirectToOriginalUrl(UrlShortener $shortUrl): RedirectResponse
+    {
+        if(!$shortUrl->increment('click_count')) {
             return redirect()->back()->with('error', 'Failed to redirect to the original URL.');
         }
+
+        return redirect($shortUrl->original_url);
     }
 
     private function generateUniqueShortUrl(): string

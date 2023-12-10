@@ -25,5 +25,8 @@ Route::middleware('auth')->group(function () {
 
 Route::post('/url-shortener', [UrlShortenerController::class, 'shortenUrl'])->name('url.shortener');
 Route::get('/url/{shortUrl}', [UrlShortenerController::class, 'redirectToOriginalUrl'])->name('shortener.redirect');
+Route::get('/{url}/edit', [UrlShortenerController::class, 'edit'])->name('url.edit');
+Route::post('/{url}/edit', [UrlShortenerController::class, 'update'])->name('url.update');
+Route::get('/{url}/delete', [UrlShortenerController::class, 'delete'])->name('url.delete');
 
 require __DIR__.'/auth.php';

@@ -11,7 +11,7 @@ class DashboardController extends Controller
         $urls = null;
 
         if (auth()->user()) {
-            $urls = auth()->user()->urls()->paginate(15);
+            $urls = auth()->user()->urls()->orderByDesc('created_at')->paginate(15);
         }
 
         return view('dashboard', compact('urls'));
