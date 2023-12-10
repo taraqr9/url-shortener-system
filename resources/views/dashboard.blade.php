@@ -70,7 +70,7 @@
                                                                 {{ $url->original_url }}
                                                             </td>
                                                             <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 ">
-                                                                <a href="{{ route('shortener.redirect', ['shortUrl' => $url]) }}">
+                                                                <a href="{{ route('shortener.redirect', ['shortUrl' => $url->short_url]) }}">
                                                                     {{ config('app.url'). '/url/' . $url->short_url }}
                                                                 </a>
                                                             </td>

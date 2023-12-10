@@ -5,18 +5,25 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateUrlShortenerRequest;
 use App\Http\Requests\UrlShortenerRequest;
 use App\Models\UrlShortener;
+use App\Services\ShortUrlService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class UrlShortenerController extends Controller
 {
+    private $shortUrlService;
+
+    public function __construct(ShortUrlService $shortUrlService)
+    {
+        $this->shortUrlService = $shortUrlService;
+    }
+
     public function shortenUrl(UrlShortenerRequest $request): View|RedirectResponse
     {
         $url = UrlShortener::create([
             'user_id' => auth()->id() ?? null,
             'original_url' => $request->input('original_url'),
-            'short_url' => $this->generateUniqueShortUrl(),
+            'short_url' => $this->shortUrlService->generateUniqueShortUrl(),
         ]);
 
         if (! $url) {
@@ -28,7 +35,6 @@ class UrlShortenerController extends Controller
         }
 
         return redirect()->back()->with('success', 'Url shorten successfully!');
-
     }
 
     public function edit(UrlShortener $url): View
@@ -54,29 +60,16 @@ class UrlShortenerController extends Controller
         return redirect()->back()->with('success', 'Url deleted successfully');
     }
 
-    public function redirectToOriginalUrl(UrlShortener $shortUrl): RedirectResponse
+    public function redirectToOriginalUrl($shortUrl): RedirectResponse
     {
-        if(!$shortUrl->increment('click_count')) {
+        try {
+            $url = UrlShortener::where('short_url', $shortUrl)->firstOrFail();
+
+            $url->increment('click_count');
+
+            return redirect($url->original_url);
+        } catch (\Exception $exception) {
             return redirect()->back()->with('error', 'Failed to redirect to the original URL.');
         }
-
-        return redirect($shortUrl->original_url);
-    }
-
-    private function generateUniqueShortUrl(): string
-    {
-        $isUnique = false;
-        $attempts = 0;
-        while (! $isUnique && $attempts < 3) {
-            $hash = Str::random(6);
-            $isUnique = ! UrlShortener::where('short_url', $hash)->exists();
-            $attempts++;
-        }
-
-        if (! $isUnique) {
-            $hash = Str::random(6).'_'.now()->timestamp;
-        }
-
-        return $hash;
     }
 }
