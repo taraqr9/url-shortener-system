@@ -58,7 +58,17 @@ cp .env.example .env
 php artisan migrate --seed
 ```
 
-8Serve the application.
+8. Install npm packages.
+```
+npm install
+```
+
+9. Run the following command to build your assets.
+```
+npm run build
+```
+
+10. Serve the application.
 ```
 php artisan serve
 ```
