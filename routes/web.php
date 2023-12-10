@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UrlShortenerController;
 use Illuminate\Support\Facades\Route;
@@ -14,9 +15,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::get('/', function () {
-    return view('dashboard');
-})->name('dashboard');
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -25,5 +24,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::post('/url-shortener', [UrlShortenerController::class, 'shortenUrl'])->name('url.shortener');
+Route::get('/url/{shortUrl}', [UrlShortenerController::class, 'redirectToOriginalUrl'])->name('shortener.redirect');
 
 require __DIR__.'/auth.php';

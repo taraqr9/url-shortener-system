@@ -22,6 +22,7 @@ class UrlShortenerRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'user_id' => 'nullable|integer|exists:users,id',
             'original_url' => 'required|url',
         ];
     }
